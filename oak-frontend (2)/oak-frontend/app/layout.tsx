@@ -1,15 +1,7 @@
 import type { Metadata } from "next";
-import { Fredoka } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav";
-
-
-const fredoka = Fredoka({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-display",
-});
 
 export const metadata: Metadata = {
   title: "OAK Partner Convening 2026",
@@ -18,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={fredoka.variable}>
+    <html lang="en">
       <body className="font-sans antialiased bg-canvas text-ink">
         <div className="flex min-h-screen">
           <Sidebar />

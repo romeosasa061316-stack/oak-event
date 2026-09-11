@@ -41,29 +41,36 @@ export default function PassPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="rounded-2xl bg-gradient-to-br from-navy to-navy-dark text-white px-6 py-7">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="h-8 w-8 rounded-lg bg-white/15 flex items-center justify-center">
-            <CheckCircleIcon className="h-5 w-5" />
+    <div className="mx-auto w-full max-w-[672px]">
+      <div className="rounded-[30px] bg-[#162E55] px-8 py-7 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
+        <div className="flex items-center gap-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-white/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]">
+            <CheckCircleIcon className="h-8 w-8" />
           </div>
-          <p className="text-[11px] uppercase tracking-wide text-white/70">Registration Complete</p>
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/70">Registration Complete</p>
+            <h1 className="mt-2 font-display text-[54px] leading-[0.9] tracking-[-0.06em] text-white">
+              You&apos;re Registered,
+              <br />
+              {attendee.firstName}!
+            </h1>
+            <p className="mt-3 text-[18px] text-white/70">{attendee.organisation}</p>
+          </div>
         </div>
-        <h1 className="font-display text-2xl font-semibold">You&apos;re Registered, {attendee.firstName}!</h1>
-        <p className="text-sm text-white/70 mt-1">{attendee.organisation}</p>
       </div>
 
-      <div className="mt-4 rounded-2xl bg-white border border-line shadow-card p-6 flex flex-col items-center">
-        <p className="text-[11px] uppercase tracking-wide text-ink-faint mb-4">Your Entry Pass</p>
-        <div ref={qrWrapRef} className="rounded-xl border border-line p-4 bg-white">
-          <QRCodeCanvas value={attendee.qrCode} size={180} level="M" />
+      <div className="mt-6 rounded-[22px] border border-[#dfe4eb] bg-[#f4f5f7] p-6 shadow-[0_1px_0_rgba(17,24,39,0.02)]">
+        <div className="mx-auto max-w-[420px] rounded-[18px] border border-[#dfe4eb] bg-white p-5 shadow-[0_1px_0_rgba(17,24,39,0.02)]">
+          <div ref={qrWrapRef} className="mx-auto flex w-full items-center justify-center rounded-[16px] bg-white">
+            <QRCodeCanvas value={attendee.qrCode} size={220} level="M" />
+          </div>
+          <p className="mt-5 text-center text-[12px] font-medium uppercase tracking-[0.25em] text-[#7a8593]">{attendee.qrCode}</p>
+          <p className="mt-2 text-center text-[14px] text-[#7b8795]">Present at event entrance for check-in</p>
         </div>
-        <p className="mt-3 text-sm font-mono tracking-wide text-ink">{attendee.qrCode}</p>
-        <p className="text-xs text-ink-faint mt-1">Present at event entrance for check-in</p>
       </div>
 
-      <div className="mt-4 rounded-2xl bg-white border border-line shadow-card p-5">
-        <p className="text-[11px] uppercase tracking-wide text-ink-faint mb-3">Registration Details</p>
+      <div className="mt-6 rounded-[22px] border border-[#dfe4eb] bg-white p-5 shadow-[0_1px_0_rgba(17,24,39,0.02)]">
+        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-[#7b8795]">Registration Details</p>
         <dl className="text-sm divide-y divide-line">
           <Row label="Name" value={`${attendee.firstName} ${attendee.lastName}`} />
           <Row label="Organisation" value={attendee.organisation} />
@@ -76,15 +83,15 @@ export default function PassPage({ params }: { params: { id: string } }) {
 
       <button
         onClick={downloadQr}
-        className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-navy py-3 text-sm font-semibold text-white hover:bg-navy-light transition-colors"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-[18px] bg-[#162E55] py-4 text-[28px] font-semibold text-white shadow-[0_0_0_3px_rgba(22,46,85,0.12)] transition-colors hover:bg-[#122a4a]"
       >
-        <DownloadIcon className="h-4 w-4" />
+        <DownloadIcon className="h-6 w-6" />
         Download QR Code
       </button>
 
       <Link
         href="/register"
-        className="mt-4 block text-center text-sm text-ink-muted hover:text-navy underline underline-offset-2"
+        className="mt-5 block text-center text-[15px] text-[#5f6d7d] hover:text-[#162E55] underline underline-offset-2"
       >
         Register another attendee
       </Link>

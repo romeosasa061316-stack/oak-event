@@ -42,18 +42,8 @@ const config: Config = {
         card: "0 1px 2px rgba(17, 24, 39, 0.04), 0 1px 8px rgba(17, 24, 39, 0.04)",
       },
       fontFamily: {
-        sans: [
-          "Inter",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
-          "sans-serif",
-        ],
-        // BEST-EFFORT MATCH: your Figma headings use a rounded/chunky display
-        // face (looks like Baloo 2 or Fredoka). I don't have the exact font
-        // name from the file, so this is Fredoka as the closest free match.
-        // If you confirm the real name, swap it in app/layout.tsx.
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "Inter", "Segoe UI", "sans-serif"],
+        display: ["var(--font-display)", "Chillax", "Segoe UI", "sans-serif"],
       },
     },
   },

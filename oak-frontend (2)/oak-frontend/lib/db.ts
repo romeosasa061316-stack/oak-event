@@ -1,17 +1,4 @@
-/**
- * Data access layer.
- *
- * Every function here is async and returns plain data, on purpose: it mirrors
- * the shape of a Supabase query (`await supabase.from(...).select()`), so the
- * backend dev can swap the *inside* of each function for a real Supabase call
- * without any page/component needing to change.
- *
- * Right now everything is persisted to localStorage as a stand-in database,
- * seeded with the sample people/sessions/partners from the Figma file.
- *
- * SWAP POINT: replace the body of each exported function with a Supabase
- * query. Keep the same function signature and return shape.
- */
+
 
 import type {
   Attendee,
@@ -30,9 +17,6 @@ const KEYS = {
   seeded: "oak_seeded_v1",
 };
 
-// ---------------------------------------------------------------------------
-// low-level storage helpers
-// ---------------------------------------------------------------------------
 
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -63,9 +47,6 @@ function delay<T>(value: T, ms = 120): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(value), ms));
 }
 
-// ---------------------------------------------------------------------------
-// seed data — mirrors the sample content shown in the Figma screens
-// ---------------------------------------------------------------------------
 
 const SEED_ATTENDEES: Attendee[] = [
   {
@@ -266,6 +247,16 @@ const KEY_TAKEAWAYS = [
   "Peer exchange is rated more valuable than expert-led sessions (92% vs 74%)",
 ];
 
+export const EVENT = {
+  name: "OAK Partner Convening 2026",
+  location: "Cresta Lodge, Msasa, Harare",
+  city: "Harare, Zimbabwe",
+  dateRange: "9–11 November 2026",
+  expectedAttendees: 110,
+  sessionCount: SEED_SESSIONS.length + 15,
+  partnerCount: 38,
+};
+
 function seedIfNeeded() {
   if (typeof window === "undefined") return;
   if (window.localStorage.getItem(KEYS.seeded)) return;
@@ -274,59 +265,13 @@ function seedIfNeeded() {
   window.localStorage.setItem(KEYS.seeded, "1");
 }
 
-// ---------------------------------------------------------------------------
-// EVENT CONSTANTS — brief-accurate (Cresta Lodge, Msasa, Harare)
-// ---------------------------------------------------------------------------
 
-export const EVENT = {
-  name: "OAK Partner Convening 2026",
-  location: "Cresta Lodge, Msasa, Harare",
-  city: "Harare, Zimbabwe",
-  dateRange: "9–11 November 2026",
-  expectedAttendees: 110,
-  sessionCount: SEED_SESSIONS.length + 15, // headline stat shown pre-event
-  partnerCount: 38,
-};
+import { createClient } from "@supabase/supabase-js";
 
-// ---------------------------------------------------------------------------
-// public API — SWAP POINT for Supabase
-// ---------------------------------------------------------------------------
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export async function registerAttendee(
-  input: Omit<Attendee, "id" | "qrCode" | "createdAt" | "consentAt">
-): Promise<Attendee> {
-  seedIfNeeded();
-  const attendees = read<Attendee[]>(KEYS.attendees, []);
-  const attendee: Attendee = {
-    ...input,
-    id: uid("att"),
-    qrCode: generateQrCode(),
-    consentAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  };
-  attendees.push(attendee);
-  write(KEYS.attendees, attendees);
-  return delay(attendee);
-}
-
-export async function getAttendeeById(id: string): Promise<Attendee | null> {
-  seedIfNeeded();
-  const attendees = read<Attendee[]>(KEYS.attendees, []);
-  return delay(attendees.find((a) => a.id === id) ?? null);
-}
-
-export async function getAttendeeByQr(qrCode: string): Promise<Attendee | null> {
-  seedIfNeeded();
-  const attendees = read<Attendee[]>(KEYS.attendees, []);
-  const normalized = qrCode.trim().toUpperCase();
-  return delay(attendees.find((a) => a.qrCode.toUpperCase() === normalized) ?? null);
-}
-
-// Admin-only. Includes full PII — never expose this to a public page/API response.
-export async function getAllAttendeesAdmin(): Promise<Attendee[]> {
-  seedIfNeeded();
-  return delay(read<Attendee[]>(KEYS.attendees, []));
-}
+export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 // Public-safe list (e.g. for "simulate scan" demo picker) — no contact/dietary/travel data.
 export async function getPublicAttendeeList(): Promise<PublicAttendee[]> {
@@ -425,6 +370,37 @@ export async function getKeyTakeaways() {
 
 export async function getResources(): Promise<Resource[]> {
   return delay(SEED_RESOURCES);
+}
+
+export async function getAttendeeById(id: string): Promise<Attendee | null> {
+  seedIfNeeded();
+  const attendees = read<Attendee[]>(KEYS.attendees, []);
+  return delay(attendees.find((a) => a.id === id) ?? null);
+}
+
+export async function getAttendeeByQr(qrCode: string): Promise<Attendee | null> {
+  seedIfNeeded();
+  const normalized = qrCode.trim().toUpperCase();
+  const attendees = read<Attendee[]>(KEYS.attendees, []);
+  return delay(attendees.find((a) => a.qrCode.toUpperCase() === normalized) ?? null);
+}
+
+export async function registerAttendee(
+  input: Omit<Attendee, "id" | "qrCode" | "createdAt" | "consentAt">
+): Promise<Attendee> {
+  seedIfNeeded();
+  const attendees = read<Attendee[]>(KEYS.attendees, []);
+  const now = new Date().toISOString();
+  const attendee: Attendee = {
+    ...input,
+    id: uid("att"),
+    qrCode: generateQrCode(),
+    consentAt: now,
+    createdAt: now,
+  };
+  attendees.unshift(attendee);
+  write(KEYS.attendees, attendees);
+  return delay(attendee);
 }
 
 export async function getPartners(): Promise<Partner[]> {
